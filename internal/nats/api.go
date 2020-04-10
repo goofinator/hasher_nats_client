@@ -1,13 +1,18 @@
 package nats
 
-import "github.com/goofinator/hasher_nats_client/internal/api"
+import (
+	"github.com/goofinator/hasher_nats_client/internal/api"
+	"github.com/goofinator/hasher_nats_client/internal/init/startup"
+)
 
 // NewHaser returns new Hasher intity
-func NewHaser() api.Hasher {
-	return &hasher{}
+func NewHaser(iniData *startup.IniData) api.Hasher {
+	return &hasher{iniData: iniData}
 }
 
-type hasher struct{}
+type hasher struct {
+	iniData *startup.IniData
+}
 
 // RequestHashes gets hashes of message
 // from the server via nats
