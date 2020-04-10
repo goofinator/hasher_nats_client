@@ -6,18 +6,31 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/goofinator/hasher_nats_client/internal/api"
 )
 
 // Process performs main cycle
-func Process() {
+func Process(hasher api.Hasher) {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Println("Please input lines to hash.")
 
 	for {
 		msg := getLine(reader)
-		fmt.Printf("ECHO: %s\n", string(msg))
+		hashes, err := hasher.RequestHashes(msg)
+		display(hashes, err)
 	}
 
+}
+
+func display(hashes [][]byte, err error) {
+	if err != nil {
+		fmt.Printf("error on hashes request: %s", err)
+	}
+
+	for i, hash := range hashes {
+		fmt.Printf("hash %d: %q\n", i+1, hash)
+	}
 }
 
 func getLine(reader *bufio.Reader) []byte {
