@@ -29,6 +29,9 @@ type hasher struct {
 // RequestHashes gets hashes of message
 // from the server via nats
 func (h *hasher) RequestHashes(message []byte) ([][]byte, error) {
+	if len(message) == 0 {
+		return nil, fmt.Errorf("skip empty line")
+	}
 	nc, err := nats.Connect(h.iniData.URL)
 	if err != nil {
 		return nil, err
