@@ -29,7 +29,7 @@ func display(hashes [][]byte, err error) {
 	}
 
 	for i, hash := range hashes {
-		fmt.Printf("hash %d: %q\n", i+1, hash)
+		fmt.Printf("hash %3d: %X\n", i+1, hash)
 	}
 }
 
