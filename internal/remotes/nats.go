@@ -8,6 +8,8 @@ import (
 	"github.com/goofinator/hasher_nats_client/internal/init/startup"
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
+
+	"github.com/goofinator/hasher_nats_server/pkg"
 )
 
 // NewHaser returns new Hasher intity
@@ -42,13 +44,13 @@ func (h *hasher) useConnection(c *nats.EncodedConn, message []byte) ([][]byte, e
 		return nil, err
 	}
 
-	ch := make(chan *api.Message)
+	ch := make(chan *pkg.Message)
 	c.BindRecvChan(subjectBase+".in", ch)
 
 	return decodeResult(<-ch)
 }
 
-func decodeResult(msg *api.Message) ([][]byte, error) {
+func decodeResult(msg *pkg.Message) ([][]byte, error) {
 	result := make([][]byte, 0)
 
 	if err := json.Unmarshal(msg.Body, &result); err != nil {
@@ -57,11 +59,11 @@ func decodeResult(msg *api.Message) ([][]byte, error) {
 	return result, nil
 }
 
-func (h *hasher) prepareMessage(message []byte) (*api.Message, string) {
-	msg := &api.Message{
+func (h *hasher) prepareMessage(message []byte) (*pkg.Message, string) {
+	msg := &pkg.Message{
 		Sender: h.iniData.Sender,
 		ID:     uuid.New(),
-		Type:   api.DefaultMessageType,
+		Type:   pkg.DefaultMessageType,
 		Body:   message,
 	}
 	subject := fmt.Sprintf("worker.%s", msg.Sender)
