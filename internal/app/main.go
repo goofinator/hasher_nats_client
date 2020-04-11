@@ -25,7 +25,7 @@ func Process(hasher api.Hasher) {
 
 func display(hashes [][]byte, err error) {
 	if err != nil {
-		fmt.Printf("error on hashes request: %s", err)
+		fmt.Printf("error on hashes request: %s\n", err)
 	}
 
 	for i, hash := range hashes {

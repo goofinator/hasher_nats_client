@@ -3,6 +3,7 @@ package remotes
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/goofinator/hasher_nats_client/internal/api"
 	"github.com/goofinator/hasher_nats_client/internal/init/startup"
@@ -10,6 +11,10 @@ import (
 	"github.com/nats-io/nats.go"
 
 	"github.com/goofinator/hasher_nats_server/pkg"
+)
+
+const (
+	waitTime = time.Second * 5
 )
 
 // NewHaser returns new Hasher intity
@@ -45,9 +50,20 @@ func (h *hasher) useConnection(c *nats.EncodedConn, message []byte) ([][]byte, e
 	}
 
 	ch := make(chan *pkg.Message)
-	c.BindRecvChan(subjectBase+".in", ch)
+	sub, err := c.BindRecvChan(subjectBase+".in", ch)
+	if err != nil {
+		return nil, err
+	}
+	defer sub.Unsubscribe()
 
-	return decodeResult(<-ch)
+	select {
+	case res := <-ch:
+		return decodeResult(res)
+	case <-time.After(waitTime):
+		break
+	}
+
+	return nil, fmt.Errorf("Exit by timeout")
 }
 
 func decodeResult(msg *pkg.Message) ([][]byte, error) {
