@@ -1,8 +1,12 @@
 package remotes
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"github.com/goofinator/hasher_nats_client/internal/api"
 	"github.com/goofinator/hasher_nats_client/internal/init/startup"
+	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 )
 
@@ -22,11 +26,44 @@ func (h *hasher) RequestHashes(message []byte) ([][]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer nc.Close()
 
-	if err := nc.Publish(h.iniData.ChanelName, message); err != nil {
+	c, err := nats.NewEncodedConn(nc, nats.JSON_ENCODER)
+	if err != nil {
 		return nil, err
 	}
-	
-	return [][]byte{[]byte("PLUG"), []byte("plug")}, nil
+	defer c.Close()
+
+	return h.useConnection(c, message)
+}
+
+func (h *hasher) useConnection(c *nats.EncodedConn, message []byte) ([][]byte, error) {
+	msg, subjectBase := h.prepareMessage(message)
+	if err := c.Publish(subjectBase+".out", msg); err != nil {
+		return nil, err
+	}
+
+	ch := make(chan *api.Message)
+	c.BindRecvChan(subjectBase+".in", ch)
+
+	return decodeResult(<-ch)
+}
+
+func decodeResult(msg *api.Message) ([][]byte, error) {
+	result := make([][]byte, 0)
+
+	if err := json.Unmarshal(msg.Body, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (h *hasher) prepareMessage(message []byte) (*api.Message, string) {
+	msg := &api.Message{
+		Sender: h.iniData.Sender,
+		ID:     uuid.New(),
+		Type:   api.DefaultMessageType,
+		Body:   message,
+	}
+	subject := fmt.Sprintf("worker.%s", msg.Sender)
+	return msg, subject
 }

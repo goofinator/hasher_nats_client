@@ -1,9 +1,14 @@
 package api
 
-import "github.com/gofrs/uuid"
+import "github.com/google/uuid"
 
-// Messge describes nats message
-type Messge struct {
+const (
+	// DefaultMessageType is a message Type used by this client
+	DefaultMessageType = 0
+)
+
+// Message describes nats message
+type Message struct {
 	Type   uint8
 	Body   []byte
 	ID     uuid.UUID
