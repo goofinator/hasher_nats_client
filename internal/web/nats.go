@@ -19,7 +19,7 @@ const (
 
 // NewHaser returns new Hasher intity
 func NewHaser(natsSettings *startup.NatsSettings) api.Hasher {
-	return &hasher{natsSettings: natsSettings}
+	return hasher{natsSettings: natsSettings}
 }
 
 type hasher struct {
@@ -28,7 +28,7 @@ type hasher struct {
 
 // RequestHashes gets hashes of message
 // from the server via nats
-func (h *hasher) RequestHashes(message []byte) ([][]byte, error) {
+func (h hasher) RequestHashes(message []byte) ([][]byte, error) {
 	if len(message) == 0 {
 		return nil, fmt.Errorf("skip empty line")
 	}
@@ -46,7 +46,7 @@ func (h *hasher) RequestHashes(message []byte) ([][]byte, error) {
 	return h.useConnection(c, message)
 }
 
-func (h *hasher) useConnection(c *nats.EncodedConn, message []byte) ([][]byte, error) {
+func (h hasher) useConnection(c *nats.EncodedConn, message []byte) ([][]byte, error) {
 	msg, subjectBase := h.prepareMessage(message)
 	if err := c.Publish(subjectBase+".out", msg); err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func decodeResult(msg *pkg.Message) ([][]byte, error) {
 	return result, nil
 }
 
-func (h *hasher) prepareMessage(message []byte) (*pkg.Message, string) {
+func (h hasher) prepareMessage(message []byte) (*pkg.Message, string) {
 	msg := &pkg.Message{
 		Sender: h.natsSettings.UUID,
 		ID:     uuid.New(),
