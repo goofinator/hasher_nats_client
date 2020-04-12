@@ -18,8 +18,8 @@ type NatsSettings struct {
 }
 
 // Configuration returns port to use obtained from user or DefaultPort
-func Configuration() *NatsSettings {
-	natsSettings := &NatsSettings{}
+func Configuration() NatsSettings {
+	natsSettings := NatsSettings{}
 	flag.StringVar(&natsSettings.URL, "url", DefaultURL, "url of nats service")
 	flag.Parse()
 

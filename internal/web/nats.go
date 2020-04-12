@@ -18,12 +18,12 @@ const (
 )
 
 // NewHaser returns new Hasher intity
-func NewHaser(natsSettings *startup.NatsSettings) api.Hasher {
+func NewHaser(natsSettings startup.NatsSettings) api.Hasher {
 	return hasher{natsSettings: natsSettings}
 }
 
 type hasher struct {
-	natsSettings *startup.NatsSettings
+	natsSettings startup.NatsSettings
 }
 
 // RequestHashes gets hashes of message
