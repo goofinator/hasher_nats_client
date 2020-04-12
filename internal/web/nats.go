@@ -52,7 +52,7 @@ func (h hasher) useConnection(c *nats.EncodedConn, message []byte) ([][]byte, er
 		return nil, err
 	}
 
-	ch := make(chan *pkg.Message)
+	ch := make(chan pkg.Message)
 	sub, err := c.BindRecvChan(subjectBase+".in", ch)
 	if err != nil {
 		return nil, err
@@ -69,7 +69,7 @@ func (h hasher) useConnection(c *nats.EncodedConn, message []byte) ([][]byte, er
 	return nil, fmt.Errorf("Exit by timeout")
 }
 
-func decodeResult(msg *pkg.Message) ([][]byte, error) {
+func decodeResult(msg pkg.Message) ([][]byte, error) {
 	result := make([][]byte, 0)
 
 	if err := json.Unmarshal(msg.Body, &result); err != nil {
@@ -78,8 +78,8 @@ func decodeResult(msg *pkg.Message) ([][]byte, error) {
 	return result, nil
 }
 
-func (h hasher) prepareMessage(message []byte) (*pkg.Message, string) {
-	msg := &pkg.Message{
+func (h hasher) prepareMessage(message []byte) (pkg.Message, string) {
+	msg := pkg.Message{
 		Sender: h.natsSettings.UUID,
 		ID:     uuid.New(),
 		Type:   pkg.DefaultMessageType,
