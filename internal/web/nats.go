@@ -18,12 +18,12 @@ const (
 )
 
 // NewHaser returns new Hasher intity
-func NewHaser(iniData *startup.IniData) api.Hasher {
-	return &hasher{iniData: iniData}
+func NewHaser(natsSettings *startup.NatsSettings) api.Hasher {
+	return &hasher{natsSettings: natsSettings}
 }
 
 type hasher struct {
-	iniData *startup.IniData
+	natsSettings *startup.NatsSettings
 }
 
 // RequestHashes gets hashes of message
@@ -32,7 +32,7 @@ func (h *hasher) RequestHashes(message []byte) ([][]byte, error) {
 	if len(message) == 0 {
 		return nil, fmt.Errorf("skip empty line")
 	}
-	nc, err := nats.Connect(h.iniData.URL)
+	nc, err := nats.Connect(h.natsSettings.URL)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func decodeResult(msg *pkg.Message) ([][]byte, error) {
 
 func (h *hasher) prepareMessage(message []byte) (*pkg.Message, string) {
 	msg := &pkg.Message{
-		Sender: h.iniData.Sender,
+		Sender: h.natsSettings.UUID,
 		ID:     uuid.New(),
 		Type:   pkg.DefaultMessageType,
 		Body:   message,

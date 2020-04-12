@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	iniData := startup.Configuration()
-	hasher := web.NewHaser(iniData)
+	natsSettings := startup.Configuration()
+	hasher := web.NewHaser(natsSettings)
 	app.Process(hasher)
 }

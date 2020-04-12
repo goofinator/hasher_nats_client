@@ -8,23 +8,22 @@ import (
 
 // Default values of IniData fields
 const (
-	DefaultURL        = "nats://localhost:4222"
-	DefaultChanelName = "hasher"
+	DefaultURL = "nats://localhost:4222"
 )
 
-// IniData structure stores initial data to start a app
-type IniData struct {
-	URL    string
-	Sender uuid.UUID
+// NatsSettings structure stores initial data to start a app
+type NatsSettings struct {
+	URL  string
+	UUID uuid.UUID
 }
 
 // Configuration returns port to use obtained from user or DefaultPort
-func Configuration() *IniData {
-	iniData := &IniData{}
-	flag.StringVar(&iniData.URL, "url", DefaultURL, "url of nats service")
+func Configuration() *NatsSettings {
+	natsSettings := &NatsSettings{}
+	flag.StringVar(&natsSettings.URL, "url", DefaultURL, "url of nats service")
 	flag.Parse()
 
-	iniData.Sender = uuid.New()
+	natsSettings.UUID = uuid.New()
 
-	return iniData
+	return natsSettings
 }
